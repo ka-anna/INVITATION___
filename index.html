@@ -117,6 +117,7 @@
     <p>Ցանկանում ենք Ձեզ հետ կիսել մեր<br />ընտանիքում սպասվող կարևոր իրադարձությունը:</p>
     <p><strong>Մեր ԶԻՆՎՈՐԻ<br />Վերադարձին մնացել է</strong></p>
     <div id="countdown" aria-live="polite" aria-atomic="true">Բեռնվում է...</div>
+
     <p>Սիրով հրավիրում ենք Ձեզ՝ կիսելու մեր կյանքի կարևոր ու շատ սպասված պահերը:</p>
 
     <p><strong>Դիմավորում՝</strong><br />
@@ -138,15 +139,23 @@
   </main>
 
   <script>
+    // Countdown function
     function updateCountdown() {
       const now = new Date();
-      const targetDate = new Date(now.getFullYear(), 6, 17, 17, 0, 0); // July 17, 17:00
 
-      if (now > targetDate) {
-        targetDate.setFullYear(now.getFullYear() + 1);
+      let target = new Date(now.getFullYear(), 6, 17, 17, 0, 0);
+
+      if (now > target) {
+        target = new Date(now.getFullYear() + 1, 6, 17, 17, 0, 0);
       }
 
-      const diff = targetDate - now;
+      const diff = target - now;
+
+      if (diff <= 0) {
+        document.getElementById('countdown').textContent = 'Այսօր';
+        return;
+      }
+
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
       const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
       const minutes = Math.floor((diff / (1000 * 60)) % 60);
@@ -158,16 +167,37 @@
 
     updateCountdown();
     setInterval(updateCountdown, 1000);
-  </script>
 
-  <!-- Hidden autoplaying YouTube music iframe -->
-  <iframe
-    width="0" height="0"
-    src="https://www.youtube.com/embed/0X9ebnGbBrs?autoplay=1&loop=1&playlist=0X9ebnGbBrs&controls=0&mute=1"
-    frameborder="0"
-    allow="autoplay"
-    allowfullscreen
-    style="display:none"
-  ></iframe>
+    // Create YouTube iframe on page load, autoplay muted (allowed by browser)
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.width = 0;
+    iframe.height = 0;
+    iframe.src = 'https://www.youtube.com/embed/0X9ebnGbBrs?autoplay=1&loop=1&playlist=0X9ebnGbBrs&controls=0&mute=1';
+    iframe.frameBorder = 0;
+    iframe.allow = 'autoplay';
+    document.body.appendChild(iframe);
+
+    // On first scroll event, unmute music by replacing iframe with new one unmuted
+    function onFirstScroll() {
+      // Remove old muted iframe
+      iframe.remove();
+
+      // Create new iframe unmuted
+      const newIframe = document.createElement('iframe');
+      newIframe.style.display = 'none';
+      newIframe.width = 0;
+      newIframe.height = 0;
+      newIframe.src = 'https://www.youtube.com/embed/0X9ebnGbBrs?autoplay=1&loop=1&playlist=0X9ebnGbBrs&controls=0&mute=0';
+      newIframe.frameBorder = 0;
+      newIframe.allow = 'autoplay';
+      document.body.appendChild(newIframe);
+
+      // Remove scroll listener after first scroll
+      window.removeEventListener('scroll', onFirstScroll);
+    }
+
+    window.addEventListener('scroll', onFirstScroll, { once: true });
+  </script>
 </body>
 </html>
